@@ -1,25 +1,48 @@
-import logo from './logo.svg';
+import React, { Component } from 'react';
 import './App.css';
+import Search from './components/Search';
+import ListItem from './components/ListItem';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+    this.state = {
+      issues: [],
+    }
+  }
+
+  componentDidMount() {
+    this.fetchData();
+  }
+
+  fetchData = async () => {
+    const res = await fetch('https://api.github.com/repos/facebook/react/issues');
+    this.setState({
+      issues: await res.json(),
+    })
+  }
+
+  handleChange(e) {
+    const data = this.state.issues.filter((issue) => issue.title.toLowerCase().includes(e.target.value.toLowerCase()));
+    this.setState({
+      filteredIssues: data,
+    })
+  }
+
+  render() {
+    return (
+      <div className="App">
+        <p></p>
+        <Search handleChange={this.handleChange} />
+        <ul>
+          {this.state.filteredIssues && this.state.filteredIssues.map((issue) => {
+            return <ListItem issue={issue} />
+          })}
+        </ul>
+      </div>
+    );
+  }
 }
 
 export default App;
